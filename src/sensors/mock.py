@@ -11,6 +11,7 @@ import pmt
 def main(argv):
     port = 5556
     verbose = False
+    data=[0]*8
     counter = 0
     try:
         opts, args = getopt.getopt(argv, "va:p:", ["verbose", "port="])
@@ -37,7 +38,7 @@ def main(argv):
         while True:
             try:
                 meta = pmt.to_pmt('fess')
-                pmtdata = pmt.to_pmt({'value': counter})
+                pmtdata = pmt.to_pmt(data)
                 msg = pmt.cons(meta, pmtdata)
                 print('send_zmq fess')
                 socket_pub.send(pmt.serialize_str(msg))
