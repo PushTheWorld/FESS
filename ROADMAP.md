@@ -1,6 +1,6 @@
 # Roadmap
 
-## FEDS
+## FESS
 
 Make adding sensors to drones fast, easy, secure, reliable and reusable.
 
