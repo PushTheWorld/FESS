@@ -5,6 +5,7 @@ import json
 import getopt
 import zmq
 import time
+import pmt
 
 
 def main(argv):
@@ -35,9 +36,11 @@ def main(argv):
 
         while True:
             try:
-                socket_pub.send_string(json.dumps({
-                    'value': counter
-                }))
+                meta = pmt.to_pmt('fess')
+                pmtdata = pmt.to_pmt({'value': counter})
+                msg = pmt.cons(meta, pmtdata)
+                print('send_zmq fess')
+                socket_pub.send(pmt.serialize_str(msg))
 
                 counter += 1
                 time.sleep(1)

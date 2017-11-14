@@ -11,7 +11,7 @@ import random
 STUB_GPIO = False
 try:
     import RPi.GPIO as GPIO
-except:
+except ImportError:
     STUB_GPIO = True
 
 class Push_Button(object):
@@ -28,7 +28,7 @@ class Push_Button(object):
             GPIO.setmode(GPIO.BCM)
 
             # setup pin
-            GPIO.setup(self.pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+            GPIO.setup(self.pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
             if self.btn_callback is not None:
                 GPIO.add_event_detect(self.pin, GPIO.RISING, callback=self.btn_callback)
