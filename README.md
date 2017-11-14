@@ -1,17 +1,17 @@
-# FEDS
+# FESS
 
 <p align="center">
   <img alt="banner" src="/images/3DR-Solo-Combo_1024x1024.jpg/" width="1024">
 </p>
 <p align="center" href="">
-  Make adding sensors to drones fast, easy, secure, reliable and reusable.
+  Make adding sensors to software defined radio fast, easy, secure, reliable and reusable.
 </p>
 
 ## Welcome!
 
 First and foremost, Welcome! :tada: Willkommen! :confetti_ball: Bienvenue! :balloon::balloon::balloon:
 
-Thank you for visiting the FEDS repository.
+Thank you for visiting the FESS repository.
 
 This document (the README file) is a hub to give you some information about the project. Jump straight to one of the sections below, or just scroll down to find out more.
 
@@ -27,20 +27,20 @@ This document (the README file) is a hub to give you some information about the 
 
 ### The problem
 
-* Too much time spent adding sensors to drones
+* Too much time spent adding sensors to software defined radio
 * Not enough time spent using data that sensors output
 * No open source repo for people to upload their code to after making a code to integrate a sensor into drones
-* Hard to make apps for the drone
-* Difficult to use unique sensors with drones
+* Hard to make apps for software defined radios
+* Each sensor has unique code and drivers
 * Difficult to use sensor data to augment a drone’s path
 * No code reuse between people who have integrated unique sensors
-* Security vulnerabilities in allowing sensors to augment drones
+* Security vulnerabilities in allowing sensors to augment the control vehical (such as a drone)
 
-So, if even the very best researchers and hackers integrate sensors into their drones, they have a lot of other issues to worry about!
+So, if even the very best researchers and hackers integrate sensors into their software defined radio sustems, they have a lot of other issues to worry about!
 
 ### The solution
 
-FEDS will:
+FESS will:
 
 * Create a framework for adding sensors to computers running mavlink
 * Add sensors from the ground station
@@ -50,11 +50,11 @@ FEDS will:
 * A way for the community to build drone “apps” around raw sensor data coming to ground station
 * An open source database of sensors
 
-Using FEDS allows you, the user, to quickly add sensors to your drone! Further it should allow you to build on our powerful framework to implement your own great ideas!
+Using FESS allows you, the user, to quickly add sensors to your software defined radio control vehical! Further it should allow you to build on our powerful framework to implement your own great ideas!
 
 ## Who are we?
 
-The project was started at a DARPA SDR Hackfest event in San Francisco by Richard Fusco and AJ Keller. At a large though, we are a community of drone enthusiasts, researchers and makers creating a world where our drones are both intelligent and safe. We also hate having to reinvent the wheel every time we want to add a sensor to a project, we crave to leverage the power of the open source community to rapidly innovate the ecosystems around drones.
+The project was started at a DARPA SDR Hackfest event in San Francisco by Richard Fusco and AJ Keller. At a large though, we are a community of SDR enthusiasts, researchers and makers creating a world where our drones are both intelligent and safe. We also hate having to reinvent the wheel every time we want to add a sensor to a project, we crave to leverage the power of the open source community to rapidly innovate the ecosystems around drones.
 
 ## What do we need?
 
@@ -64,7 +64,7 @@ We need expertise in programming, user experience, software sustainability, docu
 
 We'd love your feedback along the way.
 
-Our primary goal is to make adding sensors to drones fast, easy, secure, reliable and reusable., and we're excited to support the professional development of any and all of our contributors. If you're looking to learn to code, try out working collaboratively, or translate you skills to the digital domain, we're here to help.
+Our primary goal is to make adding sensors to software defined radios fast, easy, secure, reliable and reusable, and we're excited to support the professional development of any and all of our contributors. If you're looking to learn to code, try out working collaboratively, or translate you skills to the digital domain, we're here to help.
 
 ## Get involved
 
