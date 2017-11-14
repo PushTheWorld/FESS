@@ -1,4 +1,4 @@
-# FEDS
+# FESS
 
 <p align="center">
   <img alt="banner" src="/images/3DR-Solo-Combo_1024x1024.jpg/" width="1024">
