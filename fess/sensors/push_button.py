@@ -82,7 +82,8 @@ class Push_Button(object):
                     self.socket_pub.send(pmt.serialize_str(msg))
                 else:
                     self.socket_pub.send(json.dumps({
-                        'value': self.data[1]
+                        'value': self.data[1],
+                        'pin': self.data[0]
                     }))
                 if self.verbose:
                     print('send_zmq fess push_btn #%d with val %d' % (self.pin, self.data[1]))

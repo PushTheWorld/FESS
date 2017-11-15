@@ -46,8 +46,6 @@ def main(argv):
             try:
                 msg = socket_sub.recv()
 
-                if verbose:
-                    print msg
                 dicty = json.loads(msg)
 
                 # The sensor you want to spin up, such as push_button
@@ -78,13 +76,17 @@ def main(argv):
                     else:
                         print "Action not found"
                 else:
-                    print "Sensor not supported"
+                    if verbose:
+                        print "unknown sensor"
+                        print msg
 
             except KeyboardInterrupt:
                 print "W: interrupt received, stopping"
                 print "Mock Subber Cleaned Up"
                 socket_sub.close()
                 context.term()
+                for sensor in _sensors:
+                    sensor.stop()
     except BaseException as e:
         print e
 

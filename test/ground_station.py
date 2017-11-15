@@ -34,6 +34,15 @@ def main(argv):
         socket_pub = context.socket(zmq.PUB)
         socket_pub.bind("tcp://*:%d" % port)
 
+        time.sleep(1)
+
+        # Warm up
+        for i in range(10):
+            socket_pub.send_string(json.dumps({
+                'action': 'status',
+                'sensor': 'controller'
+            }))
+
         socket_pub.send_string(json.dumps({
             'action': 'start',
             'sensor': 'push_button',
@@ -41,9 +50,7 @@ def main(argv):
             'rate': 1.
         }))
 
-        print("sent message")
-
-        time.sleep(10)
+        time.sleep(1)
 
         socket_pub.send_string(json.dumps({
             'action': 'stop',

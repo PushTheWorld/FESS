@@ -44,6 +44,14 @@ def main(argv):
                 socket_pub.send(pmt.serialize_str(msg))
 
                 counter += 1
+                data[0] = counter
+                data[1] = counter/2
+                data[2] = counter*2
+                data[7] = counter*4
+
+                if counter > 255:
+                    counter = 0
+
                 time.sleep(1)
 
             except KeyboardInterrupt:
