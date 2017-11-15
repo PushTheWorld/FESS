@@ -41,10 +41,14 @@ def main(argv):
         socket_sub.setsockopt(zmq.SUBSCRIBE, b"")
 
         _sensors = []
+        _processes = []
 
         while True:
             try:
                 msg = socket_sub.recv()
+
+                if verbose:
+                    print msg
 
                 dicty = json.loads(msg)
 
@@ -59,18 +63,27 @@ def main(argv):
                         pin = dicty.get('pin', 2)
                         rate = dicty.get('rate', 1.)
                         push_btn = Push_Button(pin=pin, rate=rate, port=output_port, verbose=verbose)
-                        push_btn.run()
-                        _sensors.append(push_btn)
+                        push_btn_prc = Process(target=push_btn.run)
+                        push_btn_prc.start()
+                        _sensors.append({
+                            'sensor': push_btn,
+                            'process': push_btn_prc
+                        })
                         if verbose:
                             print("Started push button on pin %d" % pin)
                     elif action == 'stop':
                         # stop a push button thing
-                        for sensor in _sensors:
-                            if sensor is Push_Button:
+                        for sensor_obj in _sensors:
+                            sensor = sensor_obj.get('sensor')
+                            print sensor
+                            if isinstance(sensor, Push_Button):
+                                print "sensor is push button"
                                 pin = dicty.get('pin')
                                 if sensor.pin == pin:
                                     sensor.stop()
-                                    _sensors.remove(sensor)
+                                    proc = sensor_obj.get('process')
+                                    proc.terminate()
+                                    _sensors.remove(sensor_obj)
                                     if verbose:
                                         print("Removed push button on pin %d" % pin)
                     else:

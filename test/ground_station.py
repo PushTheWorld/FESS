@@ -43,20 +43,22 @@ def main(argv):
                 'sensor': 'controller'
             }))
 
-        socket_pub.send_string(json.dumps({
-            'action': 'start',
-            'sensor': 'push_button',
-            'pin': 2,
-            'rate': 1.
-        }))
+        for i in range(1, 2):
+            socket_pub.send_string(json.dumps({
+                'action': 'start',
+                'sensor': 'push_button',
+                'pin': i,
+                'rate': 0.25
+            }))
 
         time.sleep(1)
 
-        socket_pub.send_string(json.dumps({
-            'action': 'stop',
-            'sensor': 'push_button',
-            'pin': 2
-        }))
+        for i in range(1, 2):
+            socket_pub.send_string(json.dumps({
+                'action': 'stop',
+                'sensor': 'push_button',
+                'pin': i
+            }))
 
         socket_pub.close()
         context.term()

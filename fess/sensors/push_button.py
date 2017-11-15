@@ -28,7 +28,7 @@ class Push_Button(object):
         self.verbose = verbose
         self.context = zmq.Context()
         self.socket_pub = self.context.socket(zmq.PUB)
-        self.socket_pub.bind("tcp://*:%d" % port)
+        self.socket_pub.connect("tcp://localhost:%d" % port)
         self.data = [0] * 8
         self.data[0] = self.pin
 
@@ -73,7 +73,6 @@ class Push_Button(object):
 
         try:
             while self.APIAlive:
-                print "blah"
                 self.data[1] = self.read_val()
                 if not STUB_PMT:
                     meta = pmt.to_pmt('fess')
