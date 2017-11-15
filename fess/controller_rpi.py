@@ -16,11 +16,11 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv, "vi:o:", ["verbose", "input-port=", "output-port="])
     except getopt.GetoptError:
-        print 'controller.py -v -i <input_port> -o <output_port>'
+        print 'controller_rpi.py -v -i <input_port> -o <output_port>'
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print 'controller.py -v -i <input_port> -o <output_port>'
+            print 'controller_rpi.py -v -i <input_port> -o <output_port>'
             sys.exit()
         elif opt in ("-v", "--verbose"):
             verbose = True
