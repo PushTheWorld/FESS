@@ -5,7 +5,7 @@ import json
 import getopt
 import zmq
 import time
-
+import pmt
 
 def main(argv):
     port = 5556
@@ -37,7 +37,11 @@ def main(argv):
         while True:
             try:
                 msg = socket_sub.recv()
-                print msg
+               	rawr = str(pmt.deserialize_str(msg)).split('.')[1]
+		rawr_str = rawr[3:-2].split(' ')
+		data = [int(i) for i in rawr_str]
+		print data[:-1]
+		#print str(msg.decode())
 
             except KeyboardInterrupt:
                 print "W: interrupt received, stopping"
