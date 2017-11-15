@@ -79,6 +79,11 @@ class Push_Button(object):
                     pmtdata = pmt.to_pmt(self.data)
                     msg = pmt.cons(meta, pmtdata)
                     self.socket_pub.send(pmt.serialize_str(msg))
+                    if self.verbose:
+                        print(json.dumps({
+                            'value': self.data[1],
+                            'pin': self.data[0]
+                        }))
                 else:
                     self.socket_pub.send(json.dumps({
                         'value': self.data[1],
