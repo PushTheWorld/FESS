@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
-setup(name='feds',
+setup(name='fess',
       version='0.0.1',
-      description='Fast Easy Drone Sensors',
+      description='Fast Easy SDR Sensors',
       url='',
       author='AJ Keller',
       author_email='pushtheworldllc@gmail.com',

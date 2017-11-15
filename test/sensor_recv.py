@@ -11,7 +11,7 @@ def main(argv):
     port = 5556
     verbose = False
     try:
-        opts, args = getopt.getopt(argv, "va:p:", ["verbose", "port="])
+        opts, args = getopt.getopt(argv, "vp:", ["verbose", "port="])
     except getopt.GetoptError:
         print 'mock.py -v -p <port>'
         sys.exit(2)
@@ -37,8 +37,7 @@ def main(argv):
         while True:
             try:
                 msg = socket_sub.recv()
-                dicty = json.loads(msg)
-                print dicty.get('value')
+                print msg
 
             except KeyboardInterrupt:
                 print "W: interrupt received, stopping"
