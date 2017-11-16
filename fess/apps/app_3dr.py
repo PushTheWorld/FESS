@@ -12,6 +12,7 @@ kModeLoiter = 'LOITER'
 kModeStabilize = 'STABILIZE'
 
 kPrefixHeartbeat = 'heartbeat'
+kPrefixLand = 'land'
 kPrefixRCOverride = 'rc_override'
 kPrefixSensor = 'sensor'
 kPrefixTakeOff = 'takeoff'
@@ -53,6 +54,10 @@ class App3DR(object):
     def send(self, prefix):
         self.fess_send(pub=self.pub, prefix=prefix, data=self.data, verbose=self.verbose)
 
+    def land(self):
+        self.send(kPrefixLand)
+        self.flying = 0
+
     def take_off(self):
         if self.mode == kModeStabilize:
             self.data[7] = 0
@@ -62,6 +67,7 @@ class App3DR(object):
             self.data[7] = 2
 
         self.send(kPrefixTakeOff)
+        time.sleep(1.0)
         self.flying = 1
 
     def send_heartbeat(self):

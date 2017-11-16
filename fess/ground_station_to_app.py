@@ -70,7 +70,7 @@ def main(argv):
         socket_pub.bind("tcp://*:%d" % output_port)
 
         # ZMQ likes to take it's time to set up
-        time.sleep(0.3)
+        time.sleep(1.0)
 
         app = App3DR(heartbeat_rate=1., fess_send=send_to_gs, pub=socket_pub, verbose=verbose)
         app.take_off()
@@ -87,6 +87,9 @@ def main(argv):
                     print msg
             except KeyboardInterrupt:
                 print "W: interrupt received, stopping"
+                print "Telling drone to land"
+                app.land()
+                time.sleep(0.1)
                 print "PubSub Cleaned Up"
                 socket_pub.close()
                 socket_sub.close()
