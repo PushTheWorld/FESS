@@ -58,6 +58,9 @@ class App3DR(object):
         self.fess_send(pub=self.pub, prefix=prefix, data=self.data, verbose=self.verbose)
 
     def land(self):
+        self.set_defaults()
+        self.send(kPrefixRCOverride)
+        time.sleep(0.1)
         self.send(kPrefixLand)
         self.flying = 0
 
