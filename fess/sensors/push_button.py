@@ -31,6 +31,7 @@ class Push_Button(object):
         self.socket_pub.connect("tcp://localhost:%d" % port)
         self.data = [0] * 8
         self.data[0] = self.pin
+        self.APIAlive = False
 
         if self.verbose:
             print("GPIO will be read from GPIO %d and published on port %d every %f seconds" % (self.pin, self.port, self.rate))
@@ -48,7 +49,7 @@ class Push_Button(object):
 
             # setup fake data generator
             print "stubbed mode"
-            self.APIAlive = True
+        self.APIAlive = True
 
     def cleanup(self):
         if self.verbose:

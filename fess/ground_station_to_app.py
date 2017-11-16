@@ -6,11 +6,33 @@ import getopt
 import zmq
 import time
 
+from apps import App3DR
+
 STUB_PMT = False
 try:
     import pmt
 except ImportError:
     STUB_PMT = True
+
+
+def send_to_gs(pub=None, prefix=None, data=None, verbose=False):
+    if not STUB_PMT:
+        meta = pmt.to_pmt(prefix)
+        pmtdata = pmt.to_pmt(data)
+        msg = pmt.cons(meta, pmtdata)
+        pub.send(pmt.serialize_str(msg))
+        if verbose:
+            print meta, data
+    else:
+        pub.send(json.dumps({
+            'prefix': prefix,
+            'data': data
+        }))
+        if verbose:
+            print json.dumps({
+                'prefix': prefix,
+                'data': data
+            })
 
 
 def main(argv):
@@ -47,6 +69,12 @@ def main(argv):
         socket_pub = context.socket(zmq.PUB)
         socket_pub.bind("tcp://*:%d" % output_port)
 
+        # ZMQ likes to take it's time to set up
+        time.sleep(0.3)
+
+        app = App3DR(heartbeat_rate=1., fess_send=send_to_gs, pub=socket_pub, verbose=verbose)
+        app.take_off()
+
         while True:
             try:
                 msg = socket_sub.recv()
@@ -54,11 +82,9 @@ def main(argv):
                     rawr = str(pmt.deserialize_str(msg)).split('.')[1]
                     rawr_str = rawr[3:-2].split(' ')
                     data = [int(i) for i in rawr_str]
-                    socket_pub.send(json.dumps({
-                        'data': data[:-1]
-                    }))
+                    app.process_data(prefix='none', data=data)
                 else:
-                    socket_pub.send(msg)
+                    print msg
             except KeyboardInterrupt:
                 print "W: interrupt received, stopping"
                 print "PubSub Cleaned Up"
