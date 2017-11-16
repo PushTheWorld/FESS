@@ -43,13 +43,16 @@ class App3DR(object):
         self.data[2] = kOveride
 
     def set_power(self, val):
-        self.data[0] = val
+        self.data[2] = val
+        self.send(kPrefixRCOverride)
 
     def set_pitch(self, val):
         self.data[1] = val
+        self.send(kPrefixRCOverride)
 
     def set_yaw(self, val):
-        self.data[2] = val
+        self.data[0] = val
+        self.send(kPrefixRCOverride)
 
     def send(self, prefix):
         self.fess_send(pub=self.pub, prefix=prefix, data=self.data, verbose=self.verbose)
@@ -67,7 +70,7 @@ class App3DR(object):
             self.data[7] = 2
 
         self.send(kPrefixTakeOff)
-        time.sleep(5.0)
+        # time.sleep(5.0)
         self.flying = 1
 
     def send_heartbeat(self):

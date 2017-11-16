@@ -74,6 +74,7 @@ def main(argv):
 
         app = App3DR(heartbeat_rate=1., fess_send=send_to_gs, pub=socket_pub, verbose=verbose)
         app.take_off()
+        app.set_power(1650)
 
         while True:
             try:
