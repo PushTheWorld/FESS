@@ -60,7 +60,7 @@ class App3DR(object):
     def land(self):
         self.set_defaults()
         self.send(kPrefixRCOverride)
-        time.sleep(0.1)
+        time.sleep(1.0)
         self.send(kPrefixLand)
         self.flying = 0
 
