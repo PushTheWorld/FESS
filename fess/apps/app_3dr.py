@@ -67,7 +67,7 @@ class App3DR(object):
             self.data[7] = 2
 
         self.send(kPrefixTakeOff)
-        time.sleep(1.0)
+        time.sleep(5.0)
         self.flying = 1
 
     def send_heartbeat(self):
