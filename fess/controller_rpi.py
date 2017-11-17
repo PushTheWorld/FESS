@@ -14,6 +14,7 @@ try:
 except ImportError:
     STUB_PMT = True
 
+kPrefixSensor = 'sensor'
 
 def main(argv):
     input_port = 5555
@@ -52,11 +53,17 @@ def main(argv):
         while True:
             try:
                 msg = socket_sub.recv()
+                data = [0] * 8
 
                 if not STUB_PMT:
-                    rawr = str(pmt.deserialize_str(msg)).split('.')[1]
+                    prefix, rawr = str(pmt.deserialize_str(msg)).split('.')
+                    prefix = prefix[1:]
                     rawr_str = rawr[3:-2].split(' ')
-                    data = [int(i) for i in rawr_str]
+                    for i in range(len(rawr_str)):
+                        try:
+                            data[i] = int(rawr_str[i])
+                        except BaseException:
+                            print "Problem parsing int at index %i becaus %s has chars that are not numbers" % (i, rawr_str[i])
                 else:
                     if verbose:
                         print msg
@@ -64,53 +71,46 @@ def main(argv):
                     dicty = json.loads(msg)
 
                     data = dicty.get('data')
+                    prefix = dicty.get('prefix')
 
                 # The sensor you want to spin up, such as push_button
-                # sensor = dicty.get('sensor')
-
-                # if sensor == 'push_button':
-                if data[3] == 1:
-                    # The action you want to do, such as 'start' or 'stop' or 'status'
-                    # action = dicty.get('action')
-                    # if action == 'start':
-                    if data[4] == 1:
-                        # spin up the push button thing
-                        pin = data[5]
-                        rate = data[6]/100.0
-                        # pin = dicty.get('pin', 2)
-                        # rate = dicty.get('rate', 1.)
-                        push_btn = Push_Button(pin=pin, rate=rate, port=output_port, verbose=verbose)
-                        push_btn_prc = Process(target=push_btn.run)
-                        push_btn_prc.start()
-                        _sensors.append({
-                            'sensor': push_btn,
-                            'process': push_btn_prc
-                        })
-                        if verbose:
-                            print("Started push button on pin %d" % pin)
-                    # elif action == 'stop':
-                    elif data[4] == 0:
-                        # stop a push button thing
-                        for sensor_obj in _sensors:
-                            sensor = sensor_obj.get('sensor')
-                            print sensor
-                            if isinstance(sensor, Push_Button):
-                                print "sensor is push button"
-                                # pin = dicty.get('pin')
-                                pin = data[5]
-                                if sensor.pin == pin:
-                                    sensor.stop()
-                                    proc = sensor_obj.get('process')
-                                    proc.terminate()
-                                    _sensors.remove(sensor_obj)
-                                    if verbose:
-                                        print("Removed push button on pin %d" % pin)
-                    else:
-                        print "Action not found"
-                else:
-                    if verbose:
-                        print "unknown sensor"
-                        print msg
+                if prefix == kPrefixSensor:
+                    if data[3] == 1:
+                        # The action you want to do, such as 'start' or 'stop' or 'status'
+                        if data[4] == 1:
+                            # spin up the push button thing
+                            pin = data[5]
+                            rate = data[6]/100.0
+                            # pin = dicty.get('pin', 2)
+                            # rate = dicty.get('rate', 1.)
+                            push_btn = Push_Button(pin=pin, rate=rate, port=output_port, verbose=verbose)
+                            push_btn_prc = Process(target=push_btn.run)
+                            push_btn_prc.start()
+                            _sensors.append({
+                                'sensor': push_btn,
+                                'process': push_btn_prc
+                            })
+                            if verbose:
+                                print("Started push button on pin %d" % pin)
+                        # elif action == 'stop':
+                        elif data[4] == 0:
+                            # stop a push button thing
+                            for sensor_obj in _sensors:
+                                sensor = sensor_obj.get('sensor')
+                                print sensor
+                                if isinstance(sensor, Push_Button):
+                                    print "sensor is push button"
+                                    # pin = dicty.get('pin')
+                                    pin = data[5]
+                                    if sensor.pin == pin:
+                                        sensor.stop()
+                                        proc = sensor_obj.get('process')
+                                        proc.terminate()
+                                        _sensors.remove(sensor_obj)
+                                        if verbose:
+                                            print("Removed push button on pin %d" % pin)
+                        else:
+                            print "Action not found"
 
             except KeyboardInterrupt:
                 print "W: interrupt received, stopping"
