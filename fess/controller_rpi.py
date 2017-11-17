@@ -112,9 +112,13 @@ def main(argv):
         # Create a new python interface.
         ctrl = Controller(input_port=input_port, output_port=output_port, verbose=verbose)
         ctrl.push_button_start(pin=2, rate=0.25)
+        time.sleep(0.02)
         ctrl.push_button_start(pin=3, rate=0.25)
+        time.sleep(0.02)
         ctrl.push_button_start(pin=4, rate=0.25)
+        time.sleep(0.02)
         ctrl.push_button_start(pin=17, rate=0.25)
+        time.sleep(0.02)
 
         while True:
             try:
