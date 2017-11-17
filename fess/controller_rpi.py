@@ -8,6 +8,12 @@ import time
 from sensors import Push_Button
 from multiprocessing import Process
 
+STUB_PMT = False
+try:
+    import pmt
+except ImportError:
+    STUB_PMT = True
+
 
 def main(argv):
     input_port = 5555
@@ -47,12 +53,17 @@ def main(argv):
             try:
                 msg = socket_sub.recv()
 
-                if verbose:
-                    print msg
+                if not STUB_PMT:
+                    rawr = str(pmt.deserialize_str(msg)).split('.')[1]
+                    rawr_str = rawr[3:-2].split(' ')
+                    data = [int(i) for i in rawr_str]
+                else:
+                    if verbose:
+                        print msg
 
-                dicty = json.loads(msg)
+                    dicty = json.loads(msg)
 
-                data = dicty.get('data')
+                    data = dicty.get('data')
 
                 # The sensor you want to spin up, such as push_button
                 # sensor = dicty.get('sensor')
