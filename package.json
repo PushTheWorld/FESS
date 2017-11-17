@@ -1,0 +1,25 @@
+{
+  "name": "fess-app",
+  "version": "0.0.1",
+  "description": "A web app to read sensor data",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PushTheWorld/FESS.git"
+  },
+  "author": "AJ Keller",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PushTheWorld/FESS/issues"
+  },
+  "homepage": "https://github.com/PushTheWorld/FESS#readme",
+  "dependencies": {
+    "express": "^4.16.2"
+  }
+}

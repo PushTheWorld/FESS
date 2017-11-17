@@ -54,8 +54,26 @@ class App3DR(object):
         self.data[0] = val
         self.send(kPrefixRCOverride)
 
+    def turn_push_btn_off(self, pin=4):
+        tmp_data = [0] * 8
+        tmp_data[3] = 1 # code for push button
+        tmp_data[4] = 0 # code for off
+        tmp_data[5] = pin # code for pin
+        self._send(kPrefixSensor, tmp_data)
+
+    def turn_push_btn_on(self, pin=4, rate=1.):
+        tmp_data = [0] * 8
+        tmp_data[3] = 1 # code for push button
+        tmp_data[4] = 1 # code for on
+        tmp_data[5] = pin # pin number
+        tmp_data[6] = int(rate*100) # rate is divided by 100 on drone
+        self._send(kPrefixSensor, tmp_data)
+
+    def _send(self, prefix, data):
+        self.fess_send(pub=self.pub, prefix=prefix, data=data, verbose=self.verbose)
+
     def send(self, prefix):
-        self.fess_send(pub=self.pub, prefix=prefix, data=self.data, verbose=self.verbose)
+        self._send(prefix, self.data)
 
     def land(self):
         self.set_defaults()

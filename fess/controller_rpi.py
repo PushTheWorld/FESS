@@ -41,7 +41,7 @@ def main(argv):
         socket_sub.setsockopt(zmq.SUBSCRIBE, b"")
 
         _sensors = []
-        _processes = []
+        # _processes = []
 
         while True:
             try:
@@ -52,16 +52,22 @@ def main(argv):
 
                 dicty = json.loads(msg)
 
-                # The sensor you want to spin up, such as push_button
-                sensor = dicty.get('sensor')
+                data = dicty.get('data')
 
-                if sensor == 'push_button':
+                # The sensor you want to spin up, such as push_button
+                # sensor = dicty.get('sensor')
+
+                # if sensor == 'push_button':
+                if data[3] == 1:
                     # The action you want to do, such as 'start' or 'stop' or 'status'
-                    action = dicty.get('action')
-                    if action == 'start':
+                    # action = dicty.get('action')
+                    # if action == 'start':
+                    if data[4] == 1:
                         # spin up the push button thing
-                        pin = dicty.get('pin', 2)
-                        rate = dicty.get('rate', 1.)
+                        pin = data[5]
+                        rate = data[6]/100.0
+                        # pin = dicty.get('pin', 2)
+                        # rate = dicty.get('rate', 1.)
                         push_btn = Push_Button(pin=pin, rate=rate, port=output_port, verbose=verbose)
                         push_btn_prc = Process(target=push_btn.run)
                         push_btn_prc.start()
@@ -71,14 +77,16 @@ def main(argv):
                         })
                         if verbose:
                             print("Started push button on pin %d" % pin)
-                    elif action == 'stop':
+                    # elif action == 'stop':
+                    elif data[4] == 0:
                         # stop a push button thing
                         for sensor_obj in _sensors:
                             sensor = sensor_obj.get('sensor')
                             print sensor
                             if isinstance(sensor, Push_Button):
                                 print "sensor is push button"
-                                pin = dicty.get('pin')
+                                # pin = dicty.get('pin')
+                                pin = data[5]
                                 if sensor.pin == pin:
                                     sensor.stop()
                                     proc = sensor_obj.get('process')
