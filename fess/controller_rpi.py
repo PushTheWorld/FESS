@@ -29,12 +29,14 @@ class Controller(object):
         self.socket_sub.connect("tcp://localhost:%d" % input_port)
         self.socket_sub.setsockopt(zmq.SUBSCRIBE, b"")
 
-        self.context = zmq.Context()
         self.socket_pub = self.context.socket(zmq.PUB)
-        self.socket_pub.bind("tcp://127.0.0.1:%d" % output_port)
+        self.socket_pub.bind("tcp://*:%d" % output_port)
+
+        # ZMQ likes to take it's time to set up
+        time.sleep(1.0)
 
         if self.verbose:
-            print("Sensor controller will recieve on port %d" % self.input_port)
+            print("Sensor controller will receive on port %d" % self.input_port)
             print("Further, sensor controller will tell sensors to publish to port %d" % self.output_port)
 
     def send(self, msg):
