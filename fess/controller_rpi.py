@@ -17,30 +17,32 @@ except ImportError:
 kPrefixSensor = 'sensor'
 
 
+def send_to_rpi(pub=None, prefix=None, data=None, verbose=False):
+    if not STUB_PMT:
+        meta = pmt.to_pmt(prefix)
+        pmtdata = pmt.to_pmt(data)
+        msg = pmt.cons(meta, pmtdata)
+        pub.send(pmt.serialize_str(msg))
+        if verbose:
+            print meta, data
+    else:
+        pub.send(json.dumps({
+            'prefix': prefix,
+            'data': data
+        }))
+        if verbose:
+            print json.dumps({
+                'prefix': prefix,
+                'data': data
+            })
+
+
 class Controller(object):
-    def __init__(self, input_port=15000, output_port=14000, verbose=False):
+    def __init__(self, fess_send=None, pub=None, verbose=False):
         self.sensors = []
         self.verbose = verbose
-        self.input_port = input_port
-        self.output_port = output_port
-
-        self.context = zmq.Context()
-        self.socket_sub = self.context.socket(zmq.SUB)
-        self.socket_sub.connect("tcp://localhost:%d" % input_port)
-        self.socket_sub.setsockopt(zmq.SUBSCRIBE, b"")
-
-        self.socket_pub = self.context.socket(zmq.PUB)
-        self.socket_pub.bind("tcp://*:%d" % output_port)
-
-        # ZMQ likes to take it's time to set up
-        time.sleep(1.0)
-
-        if self.verbose:
-            print("Sensor controller will receive on port %d" % self.input_port)
-            print("Further, sensor controller will tell sensors to publish to port %d" % self.output_port)
-
-    def send(self, msg):
-        self.socket_pub.send(msg)
+        self.pub = pub
+        self.fess_send = fess_send
 
     def push_button_start(self, pin=4, rate=1.):
         """
@@ -51,9 +53,8 @@ class Controller(object):
         """
         push_btn = Push_Button(pin=pin,
                                rate=rate,
-                               port=self.output_port,
                                verbose=self.verbose,
-                               new_read_cb=self.send)
+                               new_read_cb=self._send)
         push_btn_prc = Process(target=push_btn.run)
         push_btn_prc.start()
         self.sensors.append({
@@ -80,10 +81,10 @@ class Controller(object):
                     if self.verbose:
                         print("Removed push button on pin %d" % pin)
 
+    def _send(self, prefix, data):
+        self.fess_send(pub=self.pub, prefix=prefix, data=data, verbose=self.verbose)
+
     def cleanup(self):
-        self.socket_pub.close()
-        self.socket_sub.close()
-        self.context.term()
         for sensor in self.sensors:
             sensor.stop()
 
@@ -109,20 +110,29 @@ def main(argv):
             output_port = int(arg)
 
     try:
+        context = zmq.Context()
+        socket_sub = context.socket(zmq.SUB)
+        socket_sub.connect("tcp://localhost:%d" % input_port)
+        socket_sub.setsockopt(zmq.SUBSCRIBE, b"")
+
+        socket_pub = context.socket(zmq.PUB)
+        socket_pub.bind("tcp://*:%d" % output_port)
+
+        # ZMQ likes to take it's time to set up
+        if verbose:
+            print("Sensor controller will receive on port %d" % input_port)
+            print("Further, sensor controller will tell sensors to publish to port %d" % output_port)
+
         # Create a new python interface.
-        ctrl = Controller(input_port=input_port, output_port=output_port, verbose=verbose)
+        ctrl = Controller(fess_send=send_to_rpi, pub=socket_pub, verbose=verbose)
         ctrl.push_button_start(pin=2, rate=0.25)
-        time.sleep(0.02)
         ctrl.push_button_start(pin=3, rate=0.25)
-        time.sleep(0.02)
         ctrl.push_button_start(pin=4, rate=0.25)
-        time.sleep(0.02)
         ctrl.push_button_start(pin=17, rate=0.25)
-        time.sleep(0.02)
 
         while True:
             try:
-                msg = ctrl.socket_sub.recv()
+                msg = socket_sub.recv()
                 data = [0] * 8
 
                 if not STUB_PMT:
@@ -150,8 +160,11 @@ def main(argv):
                 ctrl.push_button_stop(3)
                 ctrl.push_button_stop(4)
                 ctrl.push_button_stop(17)
-                print "Cleaning up the ZMQ"
                 ctrl.cleanup()
+                print "Cleaning up the ZMQ"
+                socket_pub.close()
+                socket_sub.close()
+                context.term()
 
     except BaseException as e:
         print e

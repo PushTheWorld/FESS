@@ -3,7 +3,6 @@ import os
 import sys
 import json
 import getopt
-# import zmq
 import time
 import random
 
@@ -13,12 +12,6 @@ try:
 except ImportError:
     STUB_GPIO = True
 
-STUB_PMT = False
-try:
-    import pmt
-except ImportError:
-    STUB_PMT = True
-
 
 class Push_Button(object):
     def __init__(self, pin=4, rate=1., port=5557, new_read_cb=None, verbose=False):
@@ -27,7 +20,7 @@ class Push_Button(object):
         self.port = port
         self.verbose = verbose
         self.data = [0] * 8
-        self.data[0] = self.pin
+        self.data[4] = self.pin
         self.APIAlive = False
         self.new_read_cb = new_read_cb
 
@@ -49,12 +42,6 @@ class Push_Button(object):
             print "stubbed mode"
         self.APIAlive = True
 
-    # def cleanup(self):
-    #     if self.verbose:
-    #         print "Mock Pubber Cleaned Up"
-    #     self.socket_pub.close()
-    #     self.context.term()
-
     def close_button(self):
         self.APIAlive = False
         if not STUB_GPIO:
@@ -72,24 +59,10 @@ class Push_Button(object):
 
         try:
             while self.APIAlive:
-                self.data[1] = self.read_val()
-                if not STUB_PMT:
-                    meta = pmt.to_pmt('fess')
-                    pmtdata = pmt.to_pmt(self.data)
-                    msg = pmt.cons(meta, pmtdata)
-                    self.new_read_cb(pmt.serialize_str(msg))
-                    if self.verbose:
-                        print(json.dumps({
-                            'value': self.data[1],
-                            'pin': self.data[0]
-                        }))
-                else:
-                    self.new_read_cb(json.dumps({
-                        'value': self.data[1],
-                        'pin': self.data[0]
-                    }))
+                self.data[5] = self.read_val()
+                self.new_read_cb('sensor', self.data)
                 if self.verbose:
-                    print('send_zmq fess push_btn #%d with val %d' % (self.pin, self.data[1]))
+                    print('Push button #%d == %d' % (self.pin, self.data[1]))
                 time.sleep(self.rate)
         except KeyboardInterrupt:
             print "caught the keyboard"
