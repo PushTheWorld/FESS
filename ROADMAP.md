@@ -2,11 +2,21 @@
 
 ## FESS
 
-Make adding sensors to drones fast, easy, secure, reliable and reusable.
+Make adding sensors to software defined radio fast, easy, secure, reliable and reusable.
 
 ## Short term - what we're working on now
 
-* Validate Concept (Monday)
-* Prove MVP (Tuesday-Wednesday)
-* Open to hackfest community (Thursday)
-* Polish and publish github repository
+* Full loop back test
+* Over the air configuration of sensors
+* Adding library of sensors
+
+### Medium Term
+
+* Encryption of sensor data
+* Write docs on how to add sensors
+
+### Long Term
+
+* Create raspberry pi/sdr combo
+* Industry support of project
+

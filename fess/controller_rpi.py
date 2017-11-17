@@ -16,9 +16,70 @@ except ImportError:
 
 kPrefixSensor = 'sensor'
 
+
+class Controller(object):
+    def __init__(self, input_port=15000, output_port=14000, verbose=False):
+        self.sensors = []
+        self.verbose = verbose
+        self.input_port = input_port
+        self.output_port = output_port
+
+        self.context = zmq.Context()
+        self.socket_sub = self.context.socket(zmq.SUB)
+        self.socket_sub.connect("tcp://localhost:%d" % input_port)
+        self.socket_sub.setsockopt(zmq.SUBSCRIBE, b"")
+
+        if self.verbose:
+            print("Sensor controller will recieve on port %d" % self.input_port)
+            print("Further, sensor controller will tell sensors to publish to port %d" % self.output_port)
+
+    def push_button_start(self, pin=4, rate=1.):
+        """
+        Used to start a push button sensor on pin that is polled at rate
+        :param pin:
+        :param rate:
+        :return:
+        """
+        push_btn = Push_Button(pin=pin,
+                               rate=rate,
+                               port=self.output_port,
+                               verbose=self.verbose)
+        push_btn_prc = Process(target=push_btn.run)
+        push_btn_prc.start()
+        self.sensors.append({
+            'sensor': push_btn,
+            'process': push_btn_prc
+        })
+        if self.verbose:
+            print("Started push button on pin %d" % pin)
+
+    def push_button_stop(self, pin=4):
+        """
+        Used to stop a push button
+        :param pin:
+        :return:
+        """
+        for sensor_obj in self.sensors:
+            sensor = sensor_obj.get('sensor')
+            if isinstance(sensor, Push_Button):
+                if sensor.pin == pin:
+                    sensor.stop()
+                    proc = sensor_obj.get('process')
+                    proc.terminate()
+                    self.sensors.remove(sensor_obj)
+                    if self.verbose:
+                        print("Removed push button on pin %d" % pin)
+
+    def cleanup(self):
+        self.socket_sub.close()
+        self.context.term()
+        for sensor in self.sensors:
+            sensor.stop()
+
+
 def main(argv):
-    input_port = 5555
-    output_port = 5556
+    input_port = 15000
+    output_port = 14000
     verbose = False
     try:
         opts, args = getopt.getopt(argv, "vi:o:", ["verbose", "input-port=", "output-port="])
@@ -38,21 +99,15 @@ def main(argv):
 
     try:
         # Create a new python interface.
-        if verbose:
-            print("Sensor controller will recieve on port %d" % input_port)
-            print("Further, sensor controller will tell sensors to publish to port %d" % output_port)
-        context = zmq.Context()
-
-        socket_sub = context.socket(zmq.SUB)
-        socket_sub.connect("tcp://localhost:%d" % input_port)
-        socket_sub.setsockopt(zmq.SUBSCRIBE, b"")
-
-        _sensors = []
-        # _processes = []
+        ctrl = Controller(input_port=input_port, output_port=output_port, verbose=verbose)
+        ctrl.push_button_start(2, 0.25)
+        ctrl.push_button_start(3, 0.25)
+        ctrl.push_button_start(4, 0.25)
+        ctrl.push_button_start(17, 0.25)
 
         while True:
             try:
-                msg = socket_sub.recv()
+                msg = ctrl.socket_sub.recv()
                 data = [0] * 8
 
                 if not STUB_PMT:
@@ -65,60 +120,24 @@ def main(argv):
                         except BaseException:
                             print "Problem parsing int at index %i becaus %s has chars that are not numbers" % (i, rawr_str[i])
                 else:
-                    if verbose:
-                        print msg
-
                     dicty = json.loads(msg)
-
                     data = dicty.get('data')
                     prefix = dicty.get('prefix')
+                if verbose:
+                    print prefix, data
 
-                # The sensor you want to spin up, such as push_button
-                if prefix == kPrefixSensor:
-                    if data[3] == 1:
-                        # The action you want to do, such as 'start' or 'stop' or 'status'
-                        if data[4] == 1:
-                            # spin up the push button thing
-                            pin = data[5]
-                            rate = data[6]/100.0
-                            # pin = dicty.get('pin', 2)
-                            # rate = dicty.get('rate', 1.)
-                            push_btn = Push_Button(pin=pin, rate=rate, port=output_port, verbose=verbose)
-                            push_btn_prc = Process(target=push_btn.run)
-                            push_btn_prc.start()
-                            _sensors.append({
-                                'sensor': push_btn,
-                                'process': push_btn_prc
-                            })
-                            if verbose:
-                                print("Started push button on pin %d" % pin)
-                        # elif action == 'stop':
-                        elif data[4] == 0:
-                            # stop a push button thing
-                            for sensor_obj in _sensors:
-                                sensor = sensor_obj.get('sensor')
-                                print sensor
-                                if isinstance(sensor, Push_Button):
-                                    print "sensor is push button"
-                                    # pin = dicty.get('pin')
-                                    pin = data[5]
-                                    if sensor.pin == pin:
-                                        sensor.stop()
-                                        proc = sensor_obj.get('process')
-                                        proc.terminate()
-                                        _sensors.remove(sensor_obj)
-                                        if verbose:
-                                            print("Removed push button on pin %d" % pin)
-                        else:
-                            print "Action not found"
+                # TODO: Add over the air sensor configuration
 
             except KeyboardInterrupt:
                 print "W: interrupt received, stopping"
-                print "Mock Subber Cleaned Up"
-                socket_sub.close()
-                context.term()
-                for sensor in _sensors:
-                    sensor.stop()
+                print "Turning off all push buttons"
+                ctrl.push_button_stop(2)
+                ctrl.push_button_stop(3)
+                ctrl.push_button_stop(4)
+                ctrl.push_button_stop(17)
+                print "Cleaning up the ZMQ"
+                ctrl.cleanup()
+
     except BaseException as e:
         print e
 

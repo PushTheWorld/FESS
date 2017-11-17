@@ -63,10 +63,10 @@ class App3DR(object):
 
     def turn_push_btn_on(self, pin=4, rate=1.):
         tmp_data = [0] * 8
-        tmp_data[3] = 1 # code for push button
-        tmp_data[4] = 1 # code for on
-        tmp_data[5] = pin # pin number
-        tmp_data[6] = int(rate*100) # rate is divided by 100 on drone
+        tmp_data[3] = 1  # code for push button
+        tmp_data[4] = 1  # code for on
+        tmp_data[5] = pin  # pin number
+        tmp_data[6] = int(rate*100)  # rate is divided by 100 on drone
         self._send(kPrefixSensor, tmp_data)
 
     def _send(self, prefix, data):

@@ -74,10 +74,11 @@ def main(argv):
 
         app = App3DR(heartbeat_rate=1., fess_send=send_to_gs, pub=socket_pub, verbose=verbose)
 
-        app.turn_push_btn_on(pin=2, rate=0.25)
-        app.turn_push_btn_on(pin=3, rate=0.25)
-        app.turn_push_btn_on(pin=4, rate=0.25)
-        app.turn_push_btn_on(pin=17, rate=0.25)
+        # TODO: Add over the air configuration of sensors
+        # app.turn_push_btn_on(pin=2, rate=0.25)
+        # app.turn_push_btn_on(pin=3, rate=0.25)
+        # app.turn_push_btn_on(pin=4, rate=0.25)
+        # app.turn_push_btn_on(pin=17, rate=0.25)
 
         app.take_off()
 
@@ -95,11 +96,11 @@ def main(argv):
                     print msg
             except KeyboardInterrupt:
                 print "W: interrupt received, stopping"
-                print "Turning sensors off"
-                app.turn_push_btn_off(2)
-                app.turn_push_btn_off(3)
-                app.turn_push_btn_off(4)
-                app.turn_push_btn_off(17)
+                # print "Turning sensors off"
+                # app.turn_push_btn_off(2)
+                # app.turn_push_btn_off(3)
+                # app.turn_push_btn_off(4)
+                # app.turn_push_btn_off(17)
                 print "Telling drone to land three times"
                 app.land()
                 time.sleep(0.1)
