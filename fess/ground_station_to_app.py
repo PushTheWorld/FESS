@@ -100,7 +100,10 @@ def main(argv):
                 app.turn_push_btn_off(3)
                 app.turn_push_btn_off(4)
                 app.turn_push_btn_off(17)
-                print "Telling drone to land"
+                print "Telling drone to land three times"
+                app.land()
+                time.sleep(0.1)
+                app.land()
                 app.land()
                 time.sleep(0.1)
                 print "PubSub Cleaned Up"
