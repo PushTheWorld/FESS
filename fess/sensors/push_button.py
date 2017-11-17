@@ -3,7 +3,7 @@ import os
 import sys
 import json
 import getopt
-import zmq
+# import zmq
 import time
 import random
 
@@ -21,17 +21,15 @@ except ImportError:
 
 
 class Push_Button(object):
-    def __init__(self, pin=4, rate=1., port=5557, verbose=False):
+    def __init__(self, pin=4, rate=1., port=5557, new_read_cb=None, verbose=False):
         self.pin = pin
         self.rate = rate
         self.port = port
         self.verbose = verbose
-        self.context = zmq.Context()
-        self.socket_pub = self.context.socket(zmq.PUB)
-        self.socket_pub.connect("tcp://localhost:%d" % port)
         self.data = [0] * 8
         self.data[0] = self.pin
         self.APIAlive = False
+        self.new_read_cb = new_read_cb
 
         if self.verbose:
             print("GPIO will be read from GPIO %d and published on port %d every %f seconds" % (self.pin, self.port, self.rate))
@@ -51,11 +49,11 @@ class Push_Button(object):
             print "stubbed mode"
         self.APIAlive = True
 
-    def cleanup(self):
-        if self.verbose:
-            print "Mock Pubber Cleaned Up"
-        self.socket_pub.close()
-        self.context.term()
+    # def cleanup(self):
+    #     if self.verbose:
+    #         print "Mock Pubber Cleaned Up"
+    #     self.socket_pub.close()
+    #     self.context.term()
 
     def close_button(self):
         self.APIAlive = False
@@ -79,14 +77,14 @@ class Push_Button(object):
                     meta = pmt.to_pmt('fess')
                     pmtdata = pmt.to_pmt(self.data)
                     msg = pmt.cons(meta, pmtdata)
-                    self.socket_pub.send(pmt.serialize_str(msg))
+                    self.new_read_cb(pmt.serialize_str(msg))
                     if self.verbose:
                         print(json.dumps({
                             'value': self.data[1],
                             'pin': self.data[0]
                         }))
                 else:
-                    self.socket_pub.send(json.dumps({
+                    self.new_read_cb(json.dumps({
                         'value': self.data[1],
                         'pin': self.data[0]
                     }))
@@ -99,7 +97,7 @@ class Push_Button(object):
 
     def stop(self):
         self.close_button()
-        self.cleanup()
+        # self.cleanup()
 
 
 def main(argv):

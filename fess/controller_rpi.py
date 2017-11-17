@@ -29,9 +29,16 @@ class Controller(object):
         self.socket_sub.connect("tcp://localhost:%d" % input_port)
         self.socket_sub.setsockopt(zmq.SUBSCRIBE, b"")
 
+        self.context = zmq.Context()
+        self.socket_pub = self.context.socket(zmq.PUB)
+        self.socket_pub.bind("tcp://127.0.0.1:%d" % output_port)
+
         if self.verbose:
             print("Sensor controller will recieve on port %d" % self.input_port)
             print("Further, sensor controller will tell sensors to publish to port %d" % self.output_port)
+
+    def send(self, msg):
+        self.socket_pub.send(msg)
 
     def push_button_start(self, pin=4, rate=1.):
         """
@@ -43,7 +50,8 @@ class Controller(object):
         push_btn = Push_Button(pin=pin,
                                rate=rate,
                                port=self.output_port,
-                               verbose=self.verbose)
+                               verbose=self.verbose,
+                               new_read_cb=self.send)
         push_btn_prc = Process(target=push_btn.run)
         push_btn_prc.start()
         self.sensors.append({
@@ -71,6 +79,7 @@ class Controller(object):
                         print("Removed push button on pin %d" % pin)
 
     def cleanup(self):
+        self.socket_pub.close()
         self.socket_sub.close()
         self.context.term()
         for sensor in self.sensors:
@@ -100,10 +109,10 @@ def main(argv):
     try:
         # Create a new python interface.
         ctrl = Controller(input_port=input_port, output_port=output_port, verbose=verbose)
-        ctrl.push_button_start(2, 0.25)
-        ctrl.push_button_start(3, 0.25)
-        ctrl.push_button_start(4, 0.25)
-        ctrl.push_button_start(17, 0.25)
+        ctrl.push_button_start(pin=2, rate=0.25)
+        ctrl.push_button_start(pin=3, rate=0.25)
+        ctrl.push_button_start(pin=4, rate=0.25)
+        ctrl.push_button_start(pin=17, rate=0.25)
 
         while True:
             try:
